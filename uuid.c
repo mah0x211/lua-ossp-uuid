@@ -149,11 +149,11 @@ LUALIB_API int luaopen_uuid( lua_State *L )
         const char *val;
     } str_constants[] = {
         // namespace
-        { "ns_nil", "nil" },
-        { "ns_dns", "ns:DNS" },
-        { "ns_url", "ns:URL" },
-        { "ns_oid", "ns:OID" },
-        { "ns_x500", "ns:x500" },
+        { "nsNil", "nil" },
+        { "nsDNS", "ns:DNS" },
+        { "nsURL", "ns:URL" },
+        { "nsOID", "ns:OID" },
+        { "nsx500", "ns:x500" },
         { NULL, 0 }
     };
     int i = 0;
