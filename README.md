@@ -33,7 +33,7 @@ OSSP uuid bindings for lua
 
 ## Example
 
-    local uuid = require('uuid');
+    local uuid = require('ossp-uuid');
 
     print( 
         "version 1\n" ..
