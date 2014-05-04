@@ -1,7 +1,7 @@
 package = "uuid"
 version = "1.0-0"
 source = {
-    url = "https://github.com/mah0x211/lua-ossp-uuid.git"
+    url = "git://github.com/mah0x211/lua-ossp-uuid.git"
 }
 description = {
     summary = "OSSP uuid bindings for lua",
