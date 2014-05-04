@@ -1,4 +1,4 @@
-package = "uuid"
+package = "ossp-uuid"
 version = "1.0-0"
 source = {
     url = "git://github.com/mah0x211/lua-ossp-uuid.git"
@@ -22,7 +22,7 @@ external_dependencies = {
 build = {
     type = "builtin",
     modules = {
-        uuid = {
+        ['ossp-uuid'] = {
             sources = { "uuid.c" },
             libraries = { "uuid" },
             incdirs = { 
