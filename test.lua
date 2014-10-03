@@ -1,4 +1,4 @@
-local uuid = require('uuid');
+local uuid = require('ossp-uuid');
 
 print( 'library version: ' .. uuid.version() );
 print( 
