@@ -2,9 +2,13 @@
 
 OSSP uuid bindings for lua
 
-## Install
+## Dependencies
 
-    luarocks make ./uuid-1.0-0.rockspec OSSP_UUID_DIR=</path/to/ossp-uuid>
+- OSSP uuid: http://www.ossp.org/pkg/lib/uuid/
+
+## Installation
+
+    luarocks install --from=http://mah0x211.github.io/rocks/ ossp-uuid
 
 ## Methods
 
