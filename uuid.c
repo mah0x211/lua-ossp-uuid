@@ -28,8 +28,8 @@
  */
 
 #include <stdlib.h>
+#include <ossp/uuid.h>
 #include <lauxlib.h>
-#include <uuid.h>
 
 #define uuid_export2lua(rc,L)({ \
     void *gen = NULL; \
