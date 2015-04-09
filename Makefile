@@ -1,7 +1,7 @@
 TARGET=$(PACKAGE).$(LIB_EXTENSION)
 SRCS=$(wildcard *.c)
 OBJS=$(SRCS:.c=.o)
-LIBS=`pkg-config $(LIBUUID) --libs`
+LIBS=`uuid-config --libs`
 
 all: $(TARGET)
 
