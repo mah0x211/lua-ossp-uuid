@@ -28,8 +28,9 @@
  */
 
 #include <stdlib.h>
-#include <ossp/uuid.h>
+#include <uuid.h>
 #include <lauxlib.h>
+
 
 #define uuid_export2lua(rc,L)({ \
     void *gen = NULL; \
@@ -39,6 +40,7 @@
         free( gen ); \
     } \
 })
+
 
 static int generate14( lua_State *L, uuid_fmt_t fmt, int ver )
 {
@@ -56,6 +58,7 @@ static int generate14( lua_State *L, uuid_fmt_t fmt, int ver )
 
     return ( rc == UUID_RC_OK ) ? 1 : luaL_error( L, "%s", uuid_error( rc ) );
 }
+
 
 static int generate35( lua_State *L, uuid_fmt_t fmt, int ver, const char *ns, 
                        const char *name )
@@ -84,7 +87,8 @@ static int generate35( lua_State *L, uuid_fmt_t fmt, int ver, const char *ns,
     return ( rc == UUID_RC_OK ) ? 1 : luaL_error( L, "%s", uuid_error( rc ) );
 }
 
-static int uuid_generate_lua( lua_State *L )
+
+static int generate_lua( lua_State *L )
 {
     uuid_fmt_t fmt = luaL_checknumber( L, 1 );
     int ver = luaL_checknumber( L, 2 );
@@ -111,22 +115,124 @@ static int uuid_generate_lua( lua_State *L )
     }
 }
 
-static int uuid_version_lua( lua_State *L )
+
+// version 1
+static int gen1str_lua( lua_State *L )
+{
+    return generate14( L, UUID_FMT_STR, UUID_MAKE_V1 );
+}
+
+static int gen1siv_lua( lua_State *L )
+{
+    return generate14( L, UUID_FMT_SIV, UUID_MAKE_V1 );
+}
+
+static int gen1txt_lua( lua_State *L )
+{
+    return generate14( L, UUID_FMT_TXT, UUID_MAKE_V1 );
+}
+
+
+// version 3
+static int gen3str_lua( lua_State *L )
+{
+    const char *ns = luaL_checkstring( L, 1 );
+    const char *name = luaL_checkstring( L, 2 );
+    
+    return generate35( L, UUID_FMT_STR, UUID_MAKE_V3, ns, name );
+}
+
+static int gen3siv_lua( lua_State *L )
+{
+    const char *ns = luaL_checkstring( L, 1 );
+    const char *name = luaL_checkstring( L, 2 );
+    
+    return generate35( L, UUID_FMT_SIV, UUID_MAKE_V3, ns, name );
+}
+
+static int gen3txt_lua( lua_State *L )
+{
+    const char *ns = luaL_checkstring( L, 1 );
+    const char *name = luaL_checkstring( L, 2 );
+    
+    return generate35( L, UUID_FMT_TXT, UUID_MAKE_V3, ns, name );
+}
+
+
+// version 4
+static int gen4str_lua( lua_State *L )
+{
+    return generate14( L, UUID_FMT_STR, UUID_MAKE_V4 );
+}
+
+static int gen4siv_lua( lua_State *L )
+{
+    return generate14( L, UUID_FMT_SIV, UUID_MAKE_V4 );
+}
+
+static int gen4txt_lua( lua_State *L )
+{
+    return generate14( L, UUID_FMT_TXT, UUID_MAKE_V4 );
+}
+
+
+// version 5
+static int gen5str_lua( lua_State *L )
+{
+    const char *ns = luaL_checkstring( L, 1 );
+    const char *name = luaL_checkstring( L, 2 );
+    
+    return generate35( L, UUID_FMT_STR, UUID_MAKE_V5, ns, name );
+}
+
+static int gen5siv_lua( lua_State *L )
+{
+    const char *ns = luaL_checkstring( L, 1 );
+    const char *name = luaL_checkstring( L, 2 );
+    
+    return generate35( L, UUID_FMT_SIV, UUID_MAKE_V5, ns, name );
+}
+
+static int gen5txt_lua( lua_State *L )
+{
+    const char *ns = luaL_checkstring( L, 1 );
+    const char *name = luaL_checkstring( L, 2 );
+    
+    return generate35( L, UUID_FMT_TXT, UUID_MAKE_V5, ns, name );
+}
+
+
+static int version_lua( lua_State *L )
 {
     lua_pushnumber( L, uuid_version() );
     return 1;
 }
 
+
 // make error
-static int const_newindex( lua_State *L ){
+static int const_newindex( lua_State *L )
+{
     return luaL_error( L, "attempting to change protected module" );
 }
+
 
 LUALIB_API int luaopen_uuid( lua_State *L )
 {
     struct luaL_Reg funcs[] = {
-        { "version", uuid_version_lua },
-        { "generate", uuid_generate_lua },
+        { "version", version_lua },
+        { "generate", generate_lua },
+        { "gen1str", gen1str_lua },
+        { "gen1siv", gen1siv_lua },
+        { "gen1txt", gen1txt_lua },
+        { "gen3str", gen3str_lua },
+        { "gen3siv", gen3siv_lua },
+        { "gen3txt", gen3txt_lua },
+        { "gen4str", gen4str_lua },
+        { "gen4siv", gen4siv_lua },
+        { "gen4txt", gen4txt_lua },
+        { "gen5str", gen5str_lua },
+        { "gen5siv", gen5siv_lua },
+        { "gen5txt", gen5txt_lua },
         { NULL, NULL }
     };
     struct {
