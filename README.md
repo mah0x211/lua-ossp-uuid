@@ -8,26 +8,45 @@ OSSP uuid bindings for lua
 
 ## Installation
 
-    luarocks install --from=http://mah0x211.github.io/rocks/ ossp-uuid
+    luarocks install ossp-uuid --from=http://mah0x211.github.io/rocks/
 
 ## Methods
 
     uuid.generate( format, version, [namespace:string, str:string] );
 
-### format
+    uuid.gen1str();
+    uuid.gen1siv();
+    uuid.gen1txt();
+
+    uuid.gen3str( namespace:string, str:string );
+    uuid.gen3siv( namespace:string, str:string );
+    uuid.gen3txt( namespace:string, str:string );
+
+    uuid.gen4str();
+    uuid.gen4siv();
+    uuid.gen4txt();
+
+    uuid.gen5str( namespace:string, str:string );
+    uuid.gen5siv( namespace:string, str:string );
+    uuid.gen5txt( namespace:string, str:string );
+
+
+## Constants
+
+### Format
 
     uuid.str
     uuid.siv
     uuid.txt
 
-### version
+### Version
 
     uuid.v1
     uuid.v3
     uuid.v4
     uuid.v5
 
-### namespace
+### Namespace
 
     uuid.nsNil:  'nil' 
     uuid.nsDNS:  'ns:DNS'
