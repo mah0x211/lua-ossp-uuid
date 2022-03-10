@@ -20,8 +20,8 @@ preprocess:
 	cd ./deps; \
 	tar -xzf ./uuid-1.6.2.tar.gz; \
 	cd ./uuid-1.6.2; \
-	./configure CC=gcc; \
-	make CC=gcc; \
+	./configure; \
+	make; \
 	make check
 
 install:
