@@ -9,30 +9,30 @@ end
 
 function testcase.generate()
     -- test that return an uuid string
-    local str = assert(uuid.generate(uuid.str, uuid.v1))
+    local str = assert(uuid.generate(uuid.STR, uuid.V1))
     assert.re_match(str,
                     '^[[:xdigit:]]{8}-[[:xdigit:]]{4}-1[[:xdigit:]]{3}-[[:xdigit:]]{4}-[[:xdigit:]]{12}$')
 
     -- test that return an error
-    local _, err = uuid.generate(uuid.str, uuid.v3, uuid.nsx500, 'HelloWorld!')
+    local _, err = uuid.generate(uuid.STR, uuid.V3, uuid.NSX500, 'HelloWorld!')
     assert.is_nil(_)
     assert.match(err, 'invalid argument')
 
     -- test that throws an error if format is invalid
     err = assert.throws(function()
-        uuid.generate(1234, uuid.v1)
+        uuid.generate(1234, uuid.V1)
     end)
     assert.match(err, '#1 .+[(]format must be', false)
 
     -- test that throws an error if version is invalid
     err = assert.throws(function()
-        uuid.generate(uuid.str, 1234)
+        uuid.generate(uuid.STR, 1234)
     end)
     assert.match(err, '#2 .+[(]version must be', false)
 
     -- test that throws an error if namespace is invalid
     err = assert.throws(function()
-        uuid.generate(uuid.str, uuid.v3, 'invalid-namespace')
+        uuid.generate(uuid.STR, uuid.V3, 'invalid-namespace')
     end)
     assert.match(err, '#3 .+[(]invalid option', false)
 end
@@ -50,7 +50,7 @@ function testcase.uuid_str()
             ver = 3,
             func = uuid.gen3str,
             args = {
-                uuid.nsURL,
+                uuid.NSURL,
                 'http://example.com/',
             },
             exp = '^[[:xdigit:]]{8}-[[:xdigit:]]{4}-3[[:xdigit:]]{3}-[[:xdigit:]]{4}-[[:xdigit:]]{12}$',
@@ -65,7 +65,7 @@ function testcase.uuid_str()
             ver = 5,
             func = uuid.gen5str,
             args = {
-                uuid.nsURL,
+                uuid.NSURL,
                 'http://example.com/',
             },
             exp = '^[[:xdigit:]]{8}-[[:xdigit:]]{4}-5[[:xdigit:]]{3}-[[:xdigit:]]{4}-[[:xdigit:]]{12}$',
@@ -90,7 +90,7 @@ function testcase.uuid_siv()
             ver = 3,
             func = uuid.gen3siv,
             args = {
-                uuid.nsURL,
+                uuid.NSURL,
                 'http://example.com/',
             },
             exp = '^%d+$',
@@ -105,7 +105,7 @@ function testcase.uuid_siv()
             ver = 5,
             func = uuid.gen5siv,
             args = {
-                uuid.nsURL,
+                uuid.NSURL,
                 'http://example.com/',
             },
             exp = '^%d+$',
@@ -130,7 +130,7 @@ function testcase.uuid_txt()
             ver = 3,
             func = uuid.gen3txt,
             args = {
-                uuid.nsURL,
+                uuid.NSURL,
                 'http://example.com/',
             },
             exp = 'version: 3',
@@ -145,7 +145,7 @@ function testcase.uuid_txt()
             ver = 5,
             func = uuid.gen5txt,
             args = {
-                uuid.nsURL,
+                uuid.NSURL,
                 'http://example.com/',
             },
             exp = 'version: 5',

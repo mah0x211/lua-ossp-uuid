@@ -24,9 +24,9 @@ print(
     "  txt: \n" .. uuid.gen1txt() )
 print( 
     "version 3\n" ..
-    '  str: ' .. uuid.gen3str( uuid.nsURL, 'http://example.com/' ) .. "\n" .. 
-    '  siv: ' .. uuid.gen3siv( uuid.nsURL, 'http://example.com/' ) .. "\n" .. 
-    '  txt: ' .. uuid.gen3txt( uuid.nsURL, 'http://example.com/' ) )
+    '  str: ' .. uuid.gen3str( uuid.NSURL, 'http://example.com/' ) .. "\n" .. 
+    '  siv: ' .. uuid.gen3siv( uuid.NSURL, 'http://example.com/' ) .. "\n" .. 
+    '  txt: ' .. uuid.gen3txt( uuid.NSURL, 'http://example.com/' ) )
 print( 
     "version 4\n" ..
     '  str: ' .. uuid.gen4str() .. "\n" .. 
@@ -34,9 +34,9 @@ print(
     "  txt: \n" .. uuid.gen4txt() )
 print( 
     "version 5\n" ..
-    '  str: ' .. uuid.gen5str( uuid.nsURL, 'http://example.com/' ) .. "\n" ..
-    '  siv: ' .. uuid.gen5siv( uuid.nsURL, 'http://example.com/' ) .. "\n" .. 
-    "  txt: \n" .. uuid.gen5txt( uuid.nsURL, 'http://example.com/' ) )
+    '  str: ' .. uuid.gen5str( uuid.NSURL, 'http://example.com/' ) .. "\n" ..
+    '  siv: ' .. uuid.gen5siv( uuid.NSURL, 'http://example.com/' ) .. "\n" .. 
+    "  txt: \n" .. uuid.gen5txt( uuid.NSURL, 'http://example.com/' ) )
 ```
 
 
@@ -47,11 +47,11 @@ creates a new universally unique identifier.
 **Parameters**
 
 - `format:integer`: specify the following format;
-  - `uuid.str`, `uuid.siv` or  `uuid.txt`
+  - `uuid.STR`, `uuid.SIV` or  `uuid.TXT`
 - `version:integer`: specify the following version;
-  - `uuid.v1`, `uuid.v3`, `uuid.v4` or `uuid.v5`
+  - `uuid.V1`, `uuid.V3`, `uuid.V4` or `uuid.V5`
 - `namespace:string`: specify the following namespace;
-  - `uuid.nsNil`, `uuid.nsDNS`, `uuid.nsURL`, `uuid.nsOID` or `uuid.nsx500`
+  - `uuid.NSNIL`, `uuid.NSDNS`, `uuid.NSURL`, `uuid.NSOID` or `uuid.NSX500`
 - `name:string`: specify the name string.
 
 **Returns**
@@ -62,39 +62,39 @@ creates a new universally unique identifier.
 
 ## str, err = uuid.gen1str()
 
-equivalent to `uuid.generate( uuid.str, uuid.v1 )`.
+equivalent to `uuid.generate( uuid.STR, uuid.V1 )`.
 
 ## str, err = uuid.gen1siv()
 
-equivalent to `uuid.generate( uuid.siv, uuid.v1 )`.
+equivalent to `uuid.generate( uuid.SIV, uuid.V1 )`.
 
 ## str, err = uuid.gen1txt()
 
-equivalent to `uuid.generate( uuid.txt, uuid.v1 )`.
+equivalent to `uuid.generate( uuid.TXT, uuid.V1 )`.
 
 ## str, err = uuid.gen3str( namespace, name )
 
-equivalent to `uuid.generate( uuid.str, uuid.v3, namespace, name )`.
+equivalent to `uuid.generate( uuid.STR, uuid.V3, namespace, name )`.
 
 ## str, err = uuid.gen3siv( namespace, name )
 
-equivalent to `uuid.generate( uuid.siv, uuid.v3, namespace, name )`.
+equivalent to `uuid.generate( uuid.SIV, uuid.V3, namespace, name )`.
 
 ## str, err = uuid.gen3txt( namespace, name )
 
-equivalent to `uuid.generate( uuid.txt, uuid.v3, namespace, name )`.
+equivalent to `uuid.generate( uuid.TXT, uuid.V3, namespace, name )`.
 
 ## str, err = uuid.gen4str()
 
-equivalent to `uuid.generate( uuid.str, uuid.v4 )`.
+equivalent to `uuid.generate( uuid.STR, uuid.V4 )`.
 
 ## str, err = uuid.gen4siv()
 
-equivalent to `uuid.generate( uuid.siv, uuid.v4 )`.
+equivalent to `uuid.generate( uuid.SIV, uuid.V4 )`.
 
 ## str, err = uuid.gen4txt()
 
-equivalent to `uuid.generate( uuid.txtsiv, uuid.v4 )`.
+equivalent to `uuid.generate( uuid.TXT, uuid.V4 )`.
 
 ## str, err = uuid.gen5str( namespace, name )
 

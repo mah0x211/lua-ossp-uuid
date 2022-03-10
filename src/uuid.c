@@ -227,20 +227,20 @@ LUALIB_API int luaopen_uuid(lua_State *L)
     lua_newtable(L);
 
     // version
-    lauxh_pushint2tbl(L, "v1", UUID_MAKE_V1);
-    lauxh_pushint2tbl(L, "v3", UUID_MAKE_V3);
-    lauxh_pushint2tbl(L, "v4", UUID_MAKE_V4);
-    lauxh_pushint2tbl(L, "v5", UUID_MAKE_V5);
+    lauxh_pushint2tbl(L, "V1", UUID_MAKE_V1);
+    lauxh_pushint2tbl(L, "V3", UUID_MAKE_V3);
+    lauxh_pushint2tbl(L, "V4", UUID_MAKE_V4);
+    lauxh_pushint2tbl(L, "V5", UUID_MAKE_V5);
     // format
-    lauxh_pushint2tbl(L, "str", UUID_FMT_STR);
-    lauxh_pushint2tbl(L, "siv", UUID_FMT_SIV);
-    lauxh_pushint2tbl(L, "txt", UUID_FMT_TXT);
+    lauxh_pushint2tbl(L, "STR", UUID_FMT_STR);
+    lauxh_pushint2tbl(L, "SIV", UUID_FMT_SIV);
+    lauxh_pushint2tbl(L, "TXT", UUID_FMT_TXT);
     // namespace
-    lauxh_pushstr2tbl(L, "nsNil", "nil");
-    lauxh_pushstr2tbl(L, "nsDNS", "ns:DNS");
-    lauxh_pushstr2tbl(L, "nsURL", "ns:URL");
-    lauxh_pushstr2tbl(L, "nsOID", "ns:OID");
-    lauxh_pushstr2tbl(L, "nsx500", "ns:x500");
+    lauxh_pushstr2tbl(L, "NSNIL", "nil");
+    lauxh_pushstr2tbl(L, "NSDNS", "ns:DNS");
+    lauxh_pushstr2tbl(L, "NSURL", "ns:URL");
+    lauxh_pushstr2tbl(L, "NSOID", "ns:OID");
+    lauxh_pushstr2tbl(L, "NSX500", "ns:x500");
     // functions
     lauxh_pushfn2tbl(L, "version", version_lua);
     lauxh_pushfn2tbl(L, "generate", generate_lua);
