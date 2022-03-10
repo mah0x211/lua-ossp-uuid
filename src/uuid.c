@@ -20,67 +20,104 @@
  * THE SOFTWARE.
  **/
 
-#include <lauxlib.h>
+#include "../deps/uuid-1.6.2/uuid.h"
+// #include "uuid.h"
+#include <lauxhlib.h>
 #include <stdlib.h>
-#include <uuid.h>
-
-#define uuid_export2lua(rc, L)                                                 \
- ({                                                                            \
-void *gen  = NULL;                                                              \
-size_t len = 0;                                                                 \
-if ((*rc = uuid_export(uid, fmt, &gen, &len)) == UUID_RC_OK) {                  \
-lua_pushlstring(L, gen, len - 1);                                              \
-free(gen);                                                                     \
-}                                                                               \
- })
 
 static int generate14(lua_State *L, uuid_fmt_t fmt, int ver)
 {
     uuid_t *uid  = NULL;
-    uuid_rc_t rc = 0;
+    uuid_rc_t rc = uuid_create(&uid);
 
-    if ((rc = uuid_create(&uid)) == UUID_RC_OK &&
-        (rc = uuid_make(uid, ver)) == UUID_RC_OK) {
-        uuid_export2lua(&rc, L);
-        uuid_destroy(uid);
-    } else if (uid) {
+    if (rc == UUID_RC_OK) {
+        void *gen  = NULL;
+        size_t len = 0;
+
+        if ((rc = uuid_make(uid, ver)) == UUID_RC_OK &&
+            (rc = uuid_export(uid, fmt, &gen, &len)) == UUID_RC_OK) {
+            if (fmt == UUID_FMT_SIV) {
+                lua_pushstring(L, gen);
+            } else {
+                lua_pushlstring(L, gen, len - 1);
+            }
+            free(gen);
+        }
         uuid_destroy(uid);
     }
 
-    return (rc == UUID_RC_OK) ? 1 : luaL_error(L, "%s", uuid_error(rc));
+    switch (rc) {
+    // UUID_RC_OK   everything ok
+    case UUID_RC_OK:
+        return 1;
+
+    // UUID_RC_ARG  invalid argument
+    // UUID_RC_MEM  out of memory
+    // UUID_RC_SYS  system error
+    // UUID_RC_INT  internal error
+    // UUID_RC_IMP  not implemented
+    default:
+        lua_pushnil(L);
+        lua_pushstring(L, uuid_error(rc));
+        return 2;
+    }
 }
 
 static int generate35(lua_State *L, uuid_fmt_t fmt, int ver, const char *ns,
                       const char *name)
 {
-    uuid_rc_t rc   = 0;
-    uuid_t *uid    = NULL;
-    uuid_t *uid_ns = NULL;
+    uuid_t *uid  = NULL;
+    uuid_rc_t rc = uuid_create(&uid);
 
     // create context
-    if ((rc = uuid_create(&uid)) == UUID_RC_OK &&
-        (rc = uuid_create(&uid_ns)) == UUID_RC_OK &&
-        (rc = uuid_load(uid_ns, ns)) == UUID_RC_OK &&
-        (rc = uuid_make(uid, ver, uid_ns, name)) == UUID_RC_OK) {
-        uuid_export2lua(&rc, L);
-        uuid_destroy(uid);
-        uuid_destroy(uid_ns);
-    } else if (uid) {
-        uuid_destroy(uid);
-        if (uid_ns) {
+    if (rc == UUID_RC_OK) {
+        uuid_t *uid_ns = NULL;
+
+        rc = uuid_create(&uid_ns);
+        if (rc == UUID_RC_OK) {
+            void *gen  = NULL;
+            size_t len = 0;
+
+            if ((rc = uuid_load(uid_ns, ns)) == UUID_RC_OK &&
+                (rc = uuid_make(uid, ver, uid_ns, name)) == UUID_RC_OK &&
+                (rc = uuid_export(uid, fmt, &gen, &len)) == UUID_RC_OK) {
+                if (fmt == UUID_FMT_SIV) {
+                    lua_pushstring(L, gen);
+                } else {
+                    lua_pushlstring(L, gen, len - 1);
+                }
+                free(gen);
+            }
             uuid_destroy(uid_ns);
         }
+        uuid_destroy(uid);
     }
 
-    return (rc == UUID_RC_OK) ? 1 : luaL_error(L, "%s", uuid_error(rc));
+    switch (rc) {
+    // UUID_RC_OK   everything ok
+    case UUID_RC_OK:
+        return 1;
+
+    // UUID_RC_ARG  invalid argument
+    // UUID_RC_MEM  out of memory
+    // UUID_RC_SYS  system error
+    // UUID_RC_INT  internal error
+    // UUID_RC_IMP  not implemented
+    default:
+        lua_pushnil(L);
+        lua_pushstring(L, uuid_error(rc));
+        return 2;
+    }
 }
 
 static int generate_lua(lua_State *L)
 {
-    uuid_fmt_t fmt   = luaL_checknumber(L, 1);
-    int ver          = luaL_checknumber(L, 2);
-    const char *ns   = NULL;
-    const char *name = NULL;
+    const char *const namespaces[] = {"nil",    "ns:DNS",  "ns:URL",
+                                      "ns:OID", "ns:x500", NULL};
+    uuid_fmt_t fmt                 = lauxh_checkinteger(L, 1);
+    int ver                        = lauxh_checkinteger(L, 2);
+    const char *ns                 = NULL;
+    const char *name               = NULL;
 
     if (fmt != UUID_FMT_STR && fmt != UUID_FMT_SIV && fmt != UUID_FMT_TXT) {
         return luaL_argerror(L, 1, "format must be str|siv|txt");
@@ -90,13 +127,14 @@ static int generate_lua(lua_State *L)
     case UUID_MAKE_V1:
     case UUID_MAKE_V4:
         return generate14(L, fmt, ver);
-        break;
+
     case UUID_MAKE_V3:
-    case UUID_MAKE_V5:
-        ns   = luaL_checkstring(L, 3);
-        name = luaL_checkstring(L, 4);
+    case UUID_MAKE_V5: {
+        ns   = namespaces[luaL_checkoption(L, 3, NULL, namespaces)];
+        name = lauxh_checkstring(L, 4);
         return generate35(L, fmt, ver, ns, name);
-        break;
+    }
+
     default:
         return luaL_argerror(L, 2, "version must be v1|v3|v4|v5");
     }
@@ -121,25 +159,22 @@ static int gen1txt_lua(lua_State *L)
 // version 3
 static int gen3str_lua(lua_State *L)
 {
-    const char *ns   = luaL_checkstring(L, 1);
-    const char *name = luaL_checkstring(L, 2);
-
+    const char *ns   = lauxh_checkstring(L, 1);
+    const char *name = lauxh_checkstring(L, 2);
     return generate35(L, UUID_FMT_STR, UUID_MAKE_V3, ns, name);
 }
 
 static int gen3siv_lua(lua_State *L)
 {
-    const char *ns   = luaL_checkstring(L, 1);
-    const char *name = luaL_checkstring(L, 2);
-
+    const char *ns   = lauxh_checkstring(L, 1);
+    const char *name = lauxh_checkstring(L, 2);
     return generate35(L, UUID_FMT_SIV, UUID_MAKE_V3, ns, name);
 }
 
 static int gen3txt_lua(lua_State *L)
 {
-    const char *ns   = luaL_checkstring(L, 1);
-    const char *name = luaL_checkstring(L, 2);
-
+    const char *ns   = lauxh_checkstring(L, 1);
+    const char *name = lauxh_checkstring(L, 2);
     return generate35(L, UUID_FMT_TXT, UUID_MAKE_V3, ns, name);
 }
 
@@ -162,122 +197,65 @@ static int gen4txt_lua(lua_State *L)
 // version 5
 static int gen5str_lua(lua_State *L)
 {
-    const char *ns   = luaL_checkstring(L, 1);
-    const char *name = luaL_checkstring(L, 2);
-
+    const char *ns   = lauxh_checkstring(L, 1);
+    const char *name = lauxh_checkstring(L, 2);
     return generate35(L, UUID_FMT_STR, UUID_MAKE_V5, ns, name);
 }
 
 static int gen5siv_lua(lua_State *L)
 {
-    const char *ns   = luaL_checkstring(L, 1);
-    const char *name = luaL_checkstring(L, 2);
-
+    const char *ns   = lauxh_checkstring(L, 1);
+    const char *name = lauxh_checkstring(L, 2);
     return generate35(L, UUID_FMT_SIV, UUID_MAKE_V5, ns, name);
 }
 
 static int gen5txt_lua(lua_State *L)
 {
-    const char *ns   = luaL_checkstring(L, 1);
-    const char *name = luaL_checkstring(L, 2);
-
+    const char *ns   = lauxh_checkstring(L, 1);
+    const char *name = lauxh_checkstring(L, 2);
     return generate35(L, UUID_FMT_TXT, UUID_MAKE_V5, ns, name);
 }
 
 static int version_lua(lua_State *L)
 {
-    lua_pushnumber(L, uuid_version());
+    lua_pushinteger(L, uuid_version());
     return 1;
-}
-
-// make error
-static int const_newindex(lua_State *L)
-{
-    return luaL_error(L, "attempting to change protected module");
 }
 
 LUALIB_API int luaopen_uuid(lua_State *L)
 {
-    struct luaL_Reg funcs[] = {
-        {"version",  version_lua },
-        {"generate", generate_lua},
-        {"gen1str",  gen1str_lua },
-        {"gen1siv",  gen1siv_lua },
-        {"gen1txt",  gen1txt_lua },
-        {"gen3str",  gen3str_lua },
-        {"gen3siv",  gen3siv_lua },
-        {"gen3txt",  gen3txt_lua },
-        {"gen4str",  gen4str_lua },
-        {"gen4siv",  gen4siv_lua },
-        {"gen4txt",  gen4txt_lua },
-        {"gen5str",  gen5str_lua },
-        {"gen5siv",  gen5siv_lua },
-        {"gen5txt",  gen5txt_lua },
-        {NULL,       NULL        }
-    };
-    struct {
-        const char *name;
-        unsigned int val;
-    } num_constants[] = {
-  // version
-        {"v1",  UUID_MAKE_V1},
-        {"v3",  UUID_MAKE_V3},
-        {"v4",  UUID_MAKE_V4},
-        {"v5",  UUID_MAKE_V5},
- // format
-        {"str", UUID_FMT_STR},
-        {"siv", UUID_FMT_SIV},
-        {"txt", UUID_FMT_TXT},
-        {NULL,  0           }
-    };
-    struct {
-        const char *name;
-        const char *val;
-    } str_constants[] = {
-  // namespace
-        {"nsNil",  "nil"    },
-        {"nsDNS",  "ns:DNS" },
-        {"nsURL",  "ns:URL" },
-        {"nsOID",  "ns:OID" },
-        {"nsx500", "ns:x500"},
-        {NULL,     0        }
-    };
-    int i = 0;
-
-    // create protected-table
-    lua_newtable(L);
-    // create __metatable
-    lua_newtable(L);
-    // create substance
-    lua_pushstring(L, "__index");
     lua_newtable(L);
 
-    // set functions
-    for (i = 0; funcs[i].name; i++) {
-        lua_pushstring(L, funcs[i].name);
-        lua_pushcfunction(L, funcs[i].func);
-        lua_rawset(L, -3);
-    }
-    // set constants
-    for (i = 0; num_constants[i].name; i++) {
-        lua_pushstring(L, num_constants[i].name);
-        lua_pushnumber(L, num_constants[i].val);
-        lua_rawset(L, -3);
-    }
-    for (i = 0; str_constants[i].name; i++) {
-        lua_pushstring(L, str_constants[i].name);
-        lua_pushstring(L, str_constants[i].val);
-        lua_rawset(L, -3);
-    }
-
-    // set substance to __metable.__index field
-    lua_rawset(L, -3);
-    // set __newindex function to __metable.__newindex filed
-    lua_pushstring(L, "__newindex");
-    lua_pushcfunction(L, const_newindex);
-    lua_rawset(L, -3);
-    // convert protected-table to metatable
-    lua_setmetatable(L, -2);
+    // version
+    lauxh_pushint2tbl(L, "v1", UUID_MAKE_V1);
+    lauxh_pushint2tbl(L, "v3", UUID_MAKE_V3);
+    lauxh_pushint2tbl(L, "v4", UUID_MAKE_V4);
+    lauxh_pushint2tbl(L, "v5", UUID_MAKE_V5);
+    // format
+    lauxh_pushint2tbl(L, "str", UUID_FMT_STR);
+    lauxh_pushint2tbl(L, "siv", UUID_FMT_SIV);
+    lauxh_pushint2tbl(L, "txt", UUID_FMT_TXT);
+    // namespace
+    lauxh_pushstr2tbl(L, "nsNil", "nil");
+    lauxh_pushstr2tbl(L, "nsDNS", "ns:DNS");
+    lauxh_pushstr2tbl(L, "nsURL", "ns:URL");
+    lauxh_pushstr2tbl(L, "nsOID", "ns:OID");
+    lauxh_pushstr2tbl(L, "nsx500", "ns:x500");
+    // functions
+    lauxh_pushfn2tbl(L, "version", version_lua);
+    lauxh_pushfn2tbl(L, "generate", generate_lua);
+    lauxh_pushfn2tbl(L, "gen1str", gen1str_lua);
+    lauxh_pushfn2tbl(L, "gen1siv", gen1siv_lua);
+    lauxh_pushfn2tbl(L, "gen1txt", gen1txt_lua);
+    lauxh_pushfn2tbl(L, "gen3str", gen3str_lua);
+    lauxh_pushfn2tbl(L, "gen3siv", gen3siv_lua);
+    lauxh_pushfn2tbl(L, "gen3txt", gen3txt_lua);
+    lauxh_pushfn2tbl(L, "gen4str", gen4str_lua);
+    lauxh_pushfn2tbl(L, "gen4siv", gen4siv_lua);
+    lauxh_pushfn2tbl(L, "gen4txt", gen4txt_lua);
+    lauxh_pushfn2tbl(L, "gen5str", gen5str_lua);
+    lauxh_pushfn2tbl(L, "gen5siv", gen5siv_lua);
+    lauxh_pushfn2tbl(L, "gen5txt", gen5txt_lua);
 
     return 1;
 }
