@@ -1,14 +1,20 @@
 TARGET=$(PACKAGE).$(LIB_EXTENSION)
-SRCS=$(wildcard *.c)
+SRCS=$(wildcard src/*.c)
 OBJS=$(SRCS:.c=.o)
+INSTALL?=install
+ifdef OSSP_UUID_COVERAGE
+COVFLAGS=--coverage
+endif
+
+.PHONY: all preprocess install
 
 all: preprocess $(TARGET)
 
 %.o: %.c
-	$(CC) $(CFLAGS) $(WARNINGS) -I$(LUA_INCDIR) $(CPPFLAGS) -Ideps/uuid-1.6.2 -o $@ -c $<
+	$(CC) $(CFLAGS) $(WARNINGS) $(COVFLAGS) $(CPPFLAGS) -o $@ -c $<
 
 $(TARGET): $(OBJS)
-	$(CC) -o $@ $^ deps/uuid-1.6.2/.libs/libuuid.a $(LIBFLAG) $(PLATFORM_LDFLAGS)
+	$(CC) $(LIBFLAG) $(LDFLAGS) $(PLATFORM_LDFLAGS) $(COVFLAGS) -o $@ $^ ./deps/uuid-1.6.2/.libs/libuuid.a
 
 preprocess:
 	cd ./deps; \
@@ -19,7 +25,6 @@ preprocess:
 	make check
 
 install:
-	mkdir -p $(LIBDIR)
-	cp $(TARGET) $(LIBDIR)
+	$(INSTALL) $(TARGET) $(INST_LIBDIR)
 	rm -rf deps/uuid-1.6.2
 	rm -f $(OBJS) $(TARGET)
