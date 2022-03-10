@@ -1,5 +1,5 @@
 TARGET=$(PACKAGE).$(LIB_EXTENSION)
-SRCS=$(wildcard *.c)
+SRCS=$(wildcard src/*.c)
 OBJS=$(SRCS:.c=.o)
 
 all: preprocess $(TARGET)
