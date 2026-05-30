@@ -20,9 +20,13 @@
  * THE SOFTWARE.
  **/
 
+// project
 #include "../deps/uuid-1.6.2/uuid.h"
-// #include "uuid.h"
-#include <lauxhlib.h>
+// depend
+#include "lauxhlib.h"
+// lua
+#include <lauxlib.h>
+// system
 #include <stdlib.h>
 
 static int generate14(lua_State *L, uuid_fmt_t fmt, int ver)

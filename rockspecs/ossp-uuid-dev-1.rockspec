@@ -1,3 +1,4 @@
+rockspec_format = "3.0"
 package = "ossp-uuid"
 version = "dev-1"
 source = {
@@ -13,22 +14,37 @@ dependencies = {
     "lua >= 5.1",
     "lauxhlib >= 0.3.1",
 }
-build = {
-    type = "make",
-    build_variables = {
-        PACKAGE             = "ossp-uuid",
-        CFLAGS              = "$(CFLAGS)",
-        WARNINGS            = "-Wall -Wno-trigraphs -Wmissing-field-initializers -Wreturn-type -Wmissing-braces -Wparentheses -Wno-switch -Wunused-function -Wunused-label -Wunused-parameter -Wunused-variable -Wunused-value -Wuninitialized -Wunknown-pragmas -Wshadow -Wsign-compare",
-        CPPFLAGS            = "-I$(LUA_INCDIR) -Ideps/uuid-1.6.2",
-        LIBFLAG             = "$(LIBFLAG)",
-        LIB_EXTENSION       = "$(LIB_EXTENSION)",
-        OSSP_UUID_COVERAGE  = "$(OSSP_UUID_COVERAGE)",
-
-    },
-    install_variables = {
-        PACKAGE         = "ossp-uuid",
-        INST_LIBDIR     = "$(LIBDIR)",
-        LIB_EXTENSION   = "$(LIB_EXTENSION)",
-    }
+build_dependencies = {
+    "luarocks-build-hooks >= 0.8.0",
 }
-
+build = {
+    type = "hooks",
+    before_build = {
+        "scripts/preprocess.lua",
+        "$(extra-vars)",
+    },
+    extra_variables = {
+        CFLAGS = "-Wall -Wno-trigraphs -Wmissing-field-initializers -Wreturn-type -Wmissing-braces -Wparentheses -Wno-switch -Wunused-function -Wunused-label -Wunused-parameter -Wunused-variable -Wunused-value -Wuninitialized -Wunknown-pragmas -Wshadow -Wsign-compare",
+    },
+    conditional_variables = {
+        OSSP_UUID_COVERAGE = {
+            CFLAGS = "--coverage",
+            LIBFLAG = "--coverage",
+        },
+    },
+    modules = {
+        ["ossp-uuid"] = {
+            sources = "src/uuid.c",
+            incdirs = {
+                "$(DEP_LAUXHLIB_INCDIR)",
+                "deps/uuid-1.6.2",
+            },
+            libdirs = {
+                "deps/uuid-1.6.2/.libs",
+            },
+            libraries = {
+                "uuid",
+            },
+        },
+    },
+}
