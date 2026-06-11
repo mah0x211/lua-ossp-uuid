@@ -1,14 +1,15 @@
 rockspec_format = "3.0"
 package = "ossp-uuid"
-version = "dev-1"
+version = "1.6.2-3"
 source = {
     url = "git+https://github.com/mah0x211/lua-ossp-uuid.git",
+    tag = "v1.6.2",
 }
 description = {
     summary = "OSSP uuid bindings for lua",
     homepage = "https://github.com/mah0x211/lua-ossp-uuid",
     license = "MIT/X11",
-    maintainer = "Masatoshi Fukunaga"
+    maintainer = "Masatoshi Fukunaga",
 }
 dependencies = {
     "lua >= 5.1",
